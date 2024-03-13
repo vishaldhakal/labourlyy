@@ -10,13 +10,11 @@ import joblib
 
 class Customer(models.Model):
    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='customer')
-   name = models.CharField(max_length=100)
-   email = models.EmailField(max_length=100)
-   phone = models.CharField(max_length=15)
-   address = models.TextField()
-   city = models.CharField(max_length=100)
-   state = models.CharField(max_length=100)
-   pincode = models.CharField(max_length=10)
+   phone_no = models.CharField(max_length=15,default='')
+   address = models.TextField(blank=True)
+   city = models.CharField(max_length=100,blank=True)
+   state = models.CharField(max_length=100,blank=True)
+   pincode = models.CharField(max_length=10,blank=True)
    created_at = models.DateTimeField(auto_now_add=True)
    updated_at = models.DateTimeField(auto_now=True)
 

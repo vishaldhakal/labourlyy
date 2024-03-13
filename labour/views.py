@@ -8,20 +8,19 @@ class WorkCategoryList(generics.ListCreateAPIView):
 
       queryset = WorkCategory.objects.all()
       serializer_class = WorkCategorySerializer
-      permission_classes = [permissions.IsAuthenticated]
+      
 
 class WorkCategoryDetail(generics.RetrieveUpdateDestroyAPIView):
       
       queryset = WorkCategory.objects.all()
       serializer_class = WorkCategorySerializer
-      permission_classes = [permissions.IsAuthenticated]
+      
 
 class LabourList(generics.ListCreateAPIView): 
       queryset = Labour.objects.all()
       serializer_class = LabourSerializer
-      permission_classes = [permissions.IsAuthenticated]
 
 class LabourDetail(generics.RetrieveUpdateDestroyAPIView):
       queryset = Labour.objects.all()
       serializer_class = LabourSerializer
-      permission_classes = [permissions.IsAuthenticated]
+      

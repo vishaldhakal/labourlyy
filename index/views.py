@@ -26,27 +26,45 @@ class MatchLabourersAPIView(APIView):
 
         except (ValueError, TypeError, KeyError):
             return Response({'error': 'Invalid request data'}, status=400)
-
-        laborers = Labour.objects.all()
+        workcategory = data.get('work_category')
+        print("Work category is: ", workcategory)
+        if workcategory:
+            if workcategory == 'All':
+                laborers = Labour.objects.all()
+            else:
+                laborers = Labour.objects.filter(work_category__name=workcategory,cost_per_day__lte=max_cost_per_day)
+        else:
+            laborers = Labour.objects.filter(cost_per_day__lte=max_cost_per_day)
+            
         matched_laborers = []
         for laborer in laborers:
             c_score = cost_score(min_cost_per_day, max_cost_per_day, laborer.cost_per_day)
             e_score = expertise_score(required_expertise, laborer.expertise_level)
             s_score = laborer.avg_sentiment_score()
 
-            print("Scores are: ", c_score, e_score, s_score)
+            """ print("Scores are: ", c_score, e_score, s_score) """
 
             w_score = 0.2 * c_score + 0.2 * e_score + 0.6 * s_score
-            print("w_score : " + str(w_score))
+            """ print("w_score : " + str(w_score)) """
             laborer_data = {
                 'id': laborer.id,
                 'name': laborer.name,
+                'email': laborer.email,
+                'phone': laborer.phone,
+                'address': laborer.address,
+                'job_type': laborer.job_type,
                 'cost_per_day': laborer.cost_per_day,
                 'expertise_level': laborer.expertise_level,
-                'avg_sentiment_score': s_score,
-                'weighted_score': w_score,
+                'city': laborer.city,
+                'state': laborer.state,
+                'pincode': laborer.pincode,
+                'created_at': laborer.created_at,
+                'updated_at': laborer.updated_at,
                 'avatar': laborer.avatar.url if laborer.avatar else None,
-                'work_category': laborer.work_category.name,
+                "work_category": {
+                    "name": laborer.work_category.name,
+                },
+                'weighted_score': w_score
             }
             matched_laborers.append(laborer_data)
 
@@ -55,5 +73,6 @@ class MatchLabourersAPIView(APIView):
 
         # Return only the top 30 matches
         top_30_matches = matched_laborers[:30]
+        print("Top 30 matches are: ", top_30_matches)
 
         return Response(top_30_matches)

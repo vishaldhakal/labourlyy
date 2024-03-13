@@ -9,6 +9,10 @@ from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 import joblib
+from django.contrib.auth.models import User
+from rest_framework.parsers import JSONParser
+from rest_framework.decorators import api_view
+import re
 
 
 class CustomerList(generics.ListCreateAPIView):
@@ -31,26 +35,51 @@ class LaborBookingDetail(generics.RetrieveUpdateDestroyAPIView):
       serializer_class = LaborBookingSerializer
       permission_classes = [permissions.IsAuthenticated]
 
-class UserCreate(generics.CreateAPIView):
-      authentication_classes = ()
-      permission_classes = ()
-      serializer_class = UserSerializer
+@api_view(["POST"])
+def register_custoumer(request):
+    datas = JSONParser().parse(request)
+    first = datas["first"]
+    last = datas["last"]
+    email = datas["email"]
+    username = email.split('@')[0]
+    password = datas["password"]
+    password2 = datas["password2"]
 
-class LoginView(ObtainAuthToken):
-      def post(self, request, *args, **kwargs):
-          serializer = self.serializer_class(data=request.data, context={'request': request})
-          serializer.is_valid(raise_exception=True)
-          user = serializer.validated_data['user']
-          token, created = Token.objects.get_or_create(user=user)
-          return Response(token.key)
-      
-class Logout(APIView):
-      permission_classes = (IsAuthenticated,)
-      def post(self, request):
-          request.user.auth_token.delete()
-          return Response(status=status.HTTP_200_OK)
-      
+    if not all([first, last, email, password, password2]):
+        return Response({"status": "Empty fields"}, status=status.HTTP_400_BAD_REQUEST)
 
+    if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
+        return Response({"status": "Invalid email"}, status=status.HTTP_400_BAD_REQUEST)
+
+    if password != password2:
+        return Response({"status": "Passwords don't match"}, status=status.HTTP_400_BAD_REQUEST)
+
+    if User.objects.filter(email=email).exists():
+        return Response({"status": "Email already exists"}, status=status.HTTP_409_CONFLICT)
+
+    if User.objects.filter(username=username).exists():
+        return Response({"status": "Username already exists"}, status=status.HTTP_409_CONFLICT)
+
+    user = User.objects.create_user(
+        username=username, password=password, email=email, first_name=first, last_name=last)
+    cust_profile = Customer.objects.create(user=user)
+    cust_profile.save()
+    return Response({"status": "Profile created successfully"}, status=status.HTTP_201_CREATED)
+
+class CustomAuthToken(ObtainAuthToken):
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(
+            data=request.data, context={"request": request}
+        )
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data["user"]
+        token, created = Token.objects.get_or_create(user=user)
+        return Response(
+            {
+                "token": token.key,
+            }
+        )
+    
 class ReviewList(generics.ListCreateAPIView):
       queryset = Review.objects.all()
       serializer_class = ReviewSerializer

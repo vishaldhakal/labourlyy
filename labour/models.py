@@ -26,7 +26,7 @@ class Labour(models.Model):
    phone = models.CharField(max_length=15)
    address = models.TextField()
    job_type = models.CharField(max_length=100)
-   cost_per_day = models.DecimalField(max_digits=5, decimal_places=2)
+   cost_per_day = models.FloatField( default=0.0 )
    expertise_level  = models.IntegerField(choices=EXPERTISE, default=1)
    city = models.CharField(max_length=100)
    state = models.CharField(max_length=100)
@@ -38,6 +38,9 @@ class Labour(models.Model):
 
    def __str__(self):
       return self.name
+
+   def get_work_category(self):
+      return self.work_category.name
    
    def avg_sentiment_score(self):
       return float(self.reviews.aggregate(Avg('sentiment_score'))['sentiment_score__avg'] or 0)
