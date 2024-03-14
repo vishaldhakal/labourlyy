@@ -13,6 +13,10 @@ from django.contrib.auth.models import User
 from rest_framework.parsers import JSONParser
 from rest_framework.decorators import api_view
 import re
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import authentication_classes, permission_classes
+from labour.models import Labour
 
 
 class CustomerList(generics.ListCreateAPIView):
@@ -79,11 +83,26 @@ class CustomAuthToken(ObtainAuthToken):
                 "token": token.key,
             }
         )
-    
-class ReviewList(generics.ListCreateAPIView):
-      queryset = Review.objects.all()
-      serializer_class = ReviewSerializer
-      permission_classes = [permissions.IsAuthenticated]
+
+
+#token authentication and get user accordingly to submit review
+@api_view(["POST"])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+
+def create_review (request):
+    datas = JSONParser().parse(request)
+    text = datas["text"]
+    laborer_id = datas["laborer_id"]
+    user = request
+    user = user.user
+    customer = Customer.objects.get(user=user)
+    laborer = Labour.objects.get(id=laborer_id)
+    review = Review.objects.create(text=text, laborer=laborer, customer=customer)
+    review.save()
+    return Response({"status": "Review created successfully"}, status=status.HTTP_201_CREATED)
+
+
 
 class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):  
       queryset = Review.objects.all()

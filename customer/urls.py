@@ -10,6 +10,6 @@ urlpatterns = [
    path('laborbookings/<int:pk>/', views.LaborBookingDetail.as_view(), name='laborbooking_detail'),
    path('users/', views.register_custoumer, name='user_create'),
    path("api-token-auth/", views.CustomAuthToken.as_view(), name="api_token_auth"),
-   path('reviews/', views.ReviewList.as_view(), name='review_list'),
+   path('reviews/', views.create_review, name='review_list'),
    path('reviews/<int:pk>/', views.ReviewDetail.as_view(), name='review_detail'),
 ]

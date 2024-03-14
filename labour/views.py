@@ -1,7 +1,7 @@
 from rest_framework import generics
 from rest_framework import permissions
 from .models import WorkCategory, Labour
-from .serializers import WorkCategorySerializer, LabourSerializer
+from .serializers import WorkCategorySerializer, LabourSerializer,LabourDetailSerializer
 import joblib
 
 class WorkCategoryList(generics.ListCreateAPIView):
@@ -22,5 +22,5 @@ class LabourList(generics.ListCreateAPIView):
 
 class LabourDetail(generics.RetrieveUpdateDestroyAPIView):
       queryset = Labour.objects.all()
-      serializer_class = LabourSerializer
+      serializer_class = LabourDetailSerializer
       

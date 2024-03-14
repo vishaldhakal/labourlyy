@@ -1,6 +1,5 @@
 from .models import WorkCategory, Labour
 from rest_framework import serializers
-from rest_framework.fields import SerializerMethodField
 
 class WorkCategorySerializer(serializers.ModelSerializer):
       class Meta:
@@ -13,6 +12,13 @@ class WorkCategorySmalllSerializer(serializers.ModelSerializer):
          fields = ['name']
 class LabourSerializer(serializers.ModelSerializer):
       work_category = WorkCategorySmalllSerializer()
+      class Meta:
+         model = Labour
+         fields = '__all__'
+
+class LabourDetailSerializer(serializers.ModelSerializer):
+      work_category = WorkCategorySerializer()
+      reviews = serializers.StringRelatedField(many=True)
       class Meta:
          model = Labour
          fields = '__all__'

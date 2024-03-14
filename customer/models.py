@@ -19,7 +19,7 @@ class Customer(models.Model):
    updated_at = models.DateTimeField(auto_now=True)
 
    def __str__(self):
-      return self.name
+      return self.user.first_name
    
    class Meta:
       ordering = ['created_at']
@@ -38,7 +38,7 @@ class LaborBooking(models.Model):
    booking_status = models.CharField(max_length=100, default='Initiated')
 
    def __str__(self):
-      return f'{self.customer.name} - {self.laborer.name}'
+      return f'{self.customer.user.first_name} - {self.laborer.name}'
 
 class Review(models.Model):
    laborer = models.ForeignKey(Labour, on_delete=models.CASCADE, related_name='reviews')
@@ -47,7 +47,7 @@ class Review(models.Model):
    sentiment_score = models.FloatField(null=True, blank=True)
 
    def __str__(self):
-      return f'Review for {self.laborer.name} = {self.sentiment_score}'
+      return f'{self.text}={self.sentiment_score}'
    
    class Meta:
       ordering = ['laborer', '-sentiment_score']
