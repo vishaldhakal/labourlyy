@@ -44,6 +44,8 @@ def register_custoumer(request):
     datas = JSONParser().parse(request)
     first = datas["first"]
     last = datas["last"]
+    phone_no = datas["phone_no"]
+    address = datas["address"]
     email = datas["email"]
     username = email.split('@')[0]
     password = datas["password"]
@@ -66,7 +68,7 @@ def register_custoumer(request):
 
     user = User.objects.create_user(
         username=username, password=password, email=email, first_name=first, last_name=last)
-    cust_profile = Customer.objects.create(user=user)
+    cust_profile = Customer.objects.create(user=user,phone_no=phone_no,address=address)
     cust_profile.save()
     return Response({"status": "Profile created successfully"}, status=status.HTTP_201_CREATED)
 
